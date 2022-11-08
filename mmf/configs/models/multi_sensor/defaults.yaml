@@ -1,0 +1,17 @@
+model_config:
+  multi_sensor:
+    losses:
+    - type: logit_bce
+    mmt:
+      hidden_size: 768
+      num_hidden_layers: 4
+    lstm:
+      input_size: 8
+      hidden_size: 384
+      bidirectional: true
+      batch_first: true
+    classifier:
+      type: mlp
+      params:
+        in_dim: 768
+        out_dim: 2

@@ -1,0 +1,11 @@
+dataset_config:
+  girasoles_sensor:
+      data_dir: ${env.data_dir}/datasets
+      annotations:
+        train:
+        - girasoles_sensor/defaults/annotations/sensor_balanced_train.npy
+        val:
+        - girasoles_sensor/defaults/annotations/sensor_balanced_test.npy
+        test:
+        - girasoles_sensor/defaults/annotations/sensor_balanced_test.npy
+      max_seq_length: 52 #336(max_stay)+2([cls]+[sep])

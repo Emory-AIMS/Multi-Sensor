@@ -1,0 +1,11 @@
+dataset_config:
+  physionet_sepsis:
+      data_dir: ${env.data_dir}/datasets
+      annotations:
+        train:
+        - physionet_sepsis/defaults/annotations/sepsis_balanced_train.npy
+        val:
+        - physionet_sepsis/defaults/annotations/sepsis_balanced_test.npy
+        test:
+        - physionet_sepsis/defaults/annotations/sepsis_balanced_test.npy
+      max_seq_length: 52 #336(max_stay)+2([cls]+[sep])

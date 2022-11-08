@@ -1,0 +1,87 @@
+project_variable:
+  # model_type choices: [realtime / onetime]
+  # change model_config.model_name.losses, evaluation.metrics and dataset_config.dataset_name.answer_key accordingly
+  model_type: onetime 
+  hidden_size: 256 # mini:256, small/medium:512, base:768
+  max_length: 50
+  max_pred_num: 2
+
+model_config:
+  multi_sensor:
+    losses:
+    # - type: m4c_decoding_bce_with_mask # model_type: realtime
+    - type: logit_bce # model_type: onetime
+    fusion_type: late # fusion_type: early/late
+    model_type: ${project_variable.model_type}
+    hidden_size: ${project_variable.hidden_size}
+    gru:
+      hidden_size: ${project_variable.hidden_size} # /2 if bidirectional=true
+      bidirectional: false
+      batch_first: true
+    data_in_dim:
+      single_vital: 1
+      double_vital: 2
+      demographic: 15
+      total: 21
+    classifier:
+      type: mlp
+      params:
+        in_dim: ${project_variable.hidden_size}
+        out_dim: ${project_variable.max_pred_num}
+
+dataset_config:
+  girasoles_sensor:
+      data_dir: ${env.data_dir}/datasets
+      annotations:
+        train:
+        - girasoles_sensor/defaults/annotations/sensor_truncated_train.npy
+        val:
+        - girasoles_sensor/defaults/annotations/sensor_truncated_test.npy
+        test:
+        - girasoles_sensor/defaults/annotations/sensor_truncated_test.npy
+      model_type: ${project_variable.model_type}
+      max_seq_length: ${project_variable.max_length}
+      max_pred_num: ${project_variable.max_pred_num}
+      hidden_size: ${project_variable.hidden_size}
+      answer_key: usg_labels # choices: ["aki_labels", "usg_labels", "temp"]
+
+optimizer:
+  params:
+    eps: 1.0e-08
+    lr: 1e-4
+    weight_decay: 0
+  type: Adam
+
+evaluation:
+  metrics:
+  # model_type: realtime
+  # - sequence_accuracy 
+  # - sequence_macro_roc_auc
+  # - sequence_micro_roc_auc
+  # - sequence_weighted_roc_auc
+  # model_type: onetime
+  - accuracy 
+  - macro_roc_auc
+  - micro_roc_auc 
+  - weighted_roc_auc
+
+training:
+  clip_norm_mode: all
+  clip_gradients: true
+  max_grad_l2_norm: 0.25
+  lr_scheduler: true
+  lr_steps:
+  - 14000
+  - 19000
+  lr_ratio: 0.1
+  log_interval: 100
+  use_warmup: true
+  warmup_factor: 0.2
+  warmup_iterations: 2000
+  max_updates: 24000
+  checkpoint_interval: 1000
+  evaluation_interval: 1000
+  batch_size: 64
+
+checkpoint:
+  max_to_keep: 5
